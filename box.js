@@ -174,7 +174,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			if((keyIsDown(this.keys[1])||keyIsDown(this.keys[2]))&&!(keyIsDown(this.keys[1])&&keyIsDown(this.keys[2]))){
 				if (keyIsDown(this.keys[1])) {
 					this.move(0);
-					if(!keyIsDown(this.keys[1])||!keyIsDown(this.keys[1])){
+					if(!keyIsDown(this.keys[2])){
 						move=2;
 						count+=0.2;
 						count=count%3;
@@ -189,7 +189,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 				}
 				if (keyIsDown(this.keys[2])) {
 					this.move(1);
-					if(!keyIsDown(this.keys[1])||!keyIsDown(this.keys[2])){
+					if(!keyIsDown(this.keys[1])){
 						move=3;
 						count+=0.2;
 						count=count%3;
