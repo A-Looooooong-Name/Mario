@@ -102,17 +102,10 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	};
 	this.move=function(dir){
 		if(this.created){
-			if(dir===0){
-				Body.setVelocity(this.body, {
-				  x: 5,
-				  y: this.body.velocity.y
-				});
-			} else if(dir===1){
-				Body.setVelocity(this.body, {
-				  x: -5,
-				  y: this.body.velocity.y
-				});
-			}
+			Body.setVelocity(this.body, {
+			  x: 5*dir,
+			  y: this.body.velocity.y
+			});
 		}
 	};
 	this.jump=function(){
@@ -173,7 +166,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			}
 			if((keyIsDown(this.keys[1])||keyIsDown(this.keys[2]))&&!(keyIsDown(this.keys[1])&&keyIsDown(this.keys[2]))){
 				if (keyIsDown(this.keys[1])) {
-					this.move(0);
+					this.move(1);
 					if(!keyIsDown(this.keys[2])){
 						move=2;
 						count+=0.2;
@@ -188,7 +181,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 					}
 				}
 				if (keyIsDown(this.keys[2])) {
-					this.move(1);
+					this.move(-1);
 					if(!keyIsDown(this.keys[1])){
 						move=3;
 						count+=0.2;
@@ -204,6 +197,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 				}
 			} else {
 				count=0;
+				this.move(0);
 				if(move===2){
 					move=0;
 				}
