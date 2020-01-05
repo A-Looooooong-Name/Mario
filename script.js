@@ -5,7 +5,7 @@ var Engine = Matter.Engine,
 	Bodies = Matter.Bodies,
 	Body = Matter.Body;
 	Constraint = Matter.Constraint;
-
+var isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 var engine = Engine.create();
 var world = engine.world;
 var lvls = [
@@ -22,7 +22,7 @@ var b;
 function genWorld(w){
 	engine = Engine.create();
 	world = engine.world;
-	walls = [new Ground(0,1000,10000,1000,"ground")];
+	walls = [new Ground(0,1000,10050,1000,"ground")];
 	spikes = [];
 	flags = [];
 	boxes = [];

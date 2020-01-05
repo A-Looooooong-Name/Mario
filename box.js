@@ -390,8 +390,9 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 }
 
 function Flag(x, y, next) {
-	this.body = Bodies.rectangle(x, y, 51, 51, {friction: 1,restitution: 0,isStatic: true});
+	this.body = Bodies.rectangle(x, y, 50, 500, {friction: 1,restitution: 0,isStatic: true});
 	this.next=next;
+	this.image=loadImage("media/flag.png");
 	World.add(world, this.body);
 	this.show = function(p) {
 		var pos = this.body.position;
@@ -421,42 +422,7 @@ function Flag(x, y, next) {
 		// fill(255, 136, 0);
 		// rect(0, 0, 51, 51);
 		// pop();
-	};
-}
-
-function Wall(x, y) {
-	this.body = Bodies.rectangle(x, y, 51, 51, {friction: 1,restitution: 0,isStatic: true});
-	this.image = loadImage("media/wall2.png");
-	World.add(world, this.body);
-	this.show = function(p) {
-		var pos = this.body.position;
-		var sumx=0;
-		var sumy=0;
-		var ps=0;
-		for(var i=0;i<p.length;i++){
-			if(p[i].body){
-				sumx+=p[i].body.position.x;
-				sumy+=p[i].body.position.y;
-				ps++;
-			}
-		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
-		// push();
-		// translate((pos.x-sumx)+width/2, (pos.y-sumy)+height/2);
-		// translate(pos.x+width/2,pos.y);
-		// rectMode(CENTER);
-		// noStroke();
-		// fill(155, 118, 83);
-		// fill(0, 0, 0);
-		// rect(0, 0, 55, 55);
-		image(this.image,(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25,50,50);
-		// pop();
+		image(this.image,(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-250,50,500);
 	};
 }
 
@@ -500,7 +466,7 @@ function Ground(x,y,w,h,type="wall") {
 }
 
 function Spike(x, y) {
-	this.body = Bodies.rectangle(x, y, 51, 51, {friction: 1,restitution: 0,isStatic: true});
+	this.body = Bodies.rectangle(x, y, 50, 50, {friction: 1,restitution: 0,isStatic: true});
 	this.image=loadImage("media/spike.png");
 	World.add(world, this.body);
 	this.show = function(p) {
