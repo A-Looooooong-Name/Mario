@@ -6,6 +6,9 @@ var Engine = Matter.Engine,
 	Body = Matter.Body;
 	Constraint = Matter.Constraint;
 var isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+var mousePos;
+var pmousePos;
+var dx=0,dy=0;
 var engine = Engine.create();
 var world = engine.world;
 var lvls = [
@@ -19,6 +22,7 @@ var spikes = [];
 var flags = [];
 var ground;
 var b;
+
 function genWorld(w){
 	engine = Engine.create();
 	world = engine.world;
@@ -30,7 +34,22 @@ function genWorld(w){
 	Engine.run(engine);
 }
 
+function checkMouse(x,y,p){
+	if(x>10){
+		p.extMove(1);
+	} else if(x<-10){
+		p.extMove(-1);
+	}
+	if(y!==0){
+		if(-y>20){
+			p.extJump();
+		}
+	}
+}
+
 function setup(){
+	mousePos = createVector(mouseX, mouseY);
+	pmousePos = createVector(mouseX, mouseY);
 	for(let i=0;i<players.length;i++){
 		players[k].init();
 	}
@@ -50,6 +69,8 @@ function setup(){
 // }
 
 function draw() {
+	mousePos.x=mouseX;
+	mousePos.y=mouseY;
 	background(147,187,236);
 	// background(255, 255, 255);
 	Engine.update(engine);
@@ -62,10 +83,25 @@ function draw() {
 	for (var l = 0; l < spikes.length; l++) {
 		spikes[l].show(players);
 	}
+	for(var k=0;k<players.length;k++){
+		if(isMobile) checkMouse(dx,dy,players[k]);
+		players[k].logic(walls,flags,players);
+	}
 	// for (var m = 0; m < boxes.length; m++) {
 		// boxes[m].show(players);
 	// }
-	for(var k=0;k<players.length;k++){
-		players[k].logic(walls,flags,players);
-	}
+}
+
+function mousePressed() {
+	pmousePos=createVector(mousePos.x,mousePos.y);
+}
+
+function mouseDragged() {
+	dx=mousePos.x-pmousePos.x;
+	dy=mousePos.y-pmousePos.y;
+}
+
+function mouseReleased() {
+	dx=0;
+	dy=0;
 }

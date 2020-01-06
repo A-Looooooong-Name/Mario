@@ -4,3 +4,27 @@ body {
 	background-color: #9b7653;
 	overflow: hidden;
 }
+
+#left {
+	/* background-image: url("media/left.png"); */
+	width: 200px;
+	height: 200px;
+	border: 1px solid grey;
+	background-color: #dd0000;
+	border-radius: 50%;
+	position: absolute;
+	top: 70%;
+	left: 10%;
+}
+
+#left:active {
+	/* background-image: url("media/left.png"); */
+	width: 200px;
+	height: 200px;
+	border: 1px solid lightgrey;
+	background-color: #990000;
+	border-radius: 50%;
+	position: absolute;
+	top: 70%;
+	left: 10%;
+}

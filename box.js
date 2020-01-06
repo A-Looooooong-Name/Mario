@@ -4,6 +4,8 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	this.keys=[up, right, left];
 	this.canJump=0;
 	let move = 1;
+	let extMoving = false;
+	let extJumping = false;
 	let jump = false;
 	let slide=0;
 	let count=0;
@@ -98,6 +100,32 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			this.rsensor = undefined;
 			this.c = undefined;
 			this.created=false;
+		}
+	};
+	this.extMove=function(dir){
+		if(this.created){
+			Body.setVelocity(this.body, {
+			  x: 5*dir,
+			  y: this.body.velocity.y
+			});
+			move=2-dir/2+0.5;
+			count+=0.2;
+			count=count%3;
+			extMoving=true;
+		}
+	};
+	this.extJump=function(){
+		if(this.created){
+			if(this.canJump){
+				jump=true;
+				Body.setVelocity(this.body, {
+				  x: this.body.velocity.x,
+				  y: -15
+				});
+				this.canJump=0;
+				slide=0;
+				extJumping=true;
+			}
 		}
 	};
 	this.move=function(dir){
@@ -195,7 +223,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 						}
 					}
 				}
-			} else {
+			} else if(!extMoving){
 				count=0;
 				this.move(0);
 				if(move===2){
@@ -207,7 +235,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			}
 			if (keyIsDown(this.keys[0])) {
 				this.jump();
-			} else {
+			} else if(!extJumping){
 				this.canJump=0;
 				slide=0;
 				for (var i = 0; i < grounds.length; i++) {
@@ -385,6 +413,8 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		// fill(r, g, b, pos[2]);
 		// rect(pos[0], pos[1], size, size);
 		// pop();
+		extMoving=false;
+		extJumping=false;
 	}
 	this.init();
 }
