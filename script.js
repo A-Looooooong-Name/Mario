@@ -40,7 +40,7 @@ function checkMouse(x,y,p){
 	} else if(x<-10){
 		p.extMove(-1);
 	}
-	if(-y-height/2>0){
+	if(-y+height/2>0){
 		p.extJump();
 	}
 }
