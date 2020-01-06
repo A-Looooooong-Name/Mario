@@ -97,7 +97,7 @@ function touchStarted() {
 	pmousePos.y=mousePos.x;
 }
 
-function mouseDragged() {
+function touchMoved() {
 	dx=mousePos.x-pmousePos.x;
 	dy=mousePos.y-pmousePos.y;
 }
