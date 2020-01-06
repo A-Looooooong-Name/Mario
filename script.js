@@ -35,13 +35,15 @@ function genWorld(w){
 }
 
 function checkMouse(x,y,p){
-	if(x+width/2>20){
+	if(x>10){
 		p.extMove(1);
 	} else if(x<-10){
 		p.extMove(-1);
 	}
-	if(-y+height/2>0){
-		p.extJump();
+	if(y-height/2!==0){
+		if(-y>0){
+			p.extJump();
+		}
 	}
 }
 
@@ -90,7 +92,7 @@ function draw() {
 	// }
 }
 
-function mousePressed() {
+function touchStarted() {
 	pmousePos.x=mousePos.x,
 	pmousePos.y=mousePos.x;
 }
@@ -100,7 +102,7 @@ function mouseDragged() {
 	dy=mousePos.y-pmousePos.y;
 }
 
-function mouseReleased() {
+function touchEnded() {
 	dx=0;
 	dy=0;
 }
