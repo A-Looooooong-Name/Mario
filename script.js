@@ -35,15 +35,13 @@ function genWorld(w){
 }
 
 function checkMouse(x,y,p){
-	if(x-width/2>10){
+	if(x+width/2>20){
 		p.extMove(1);
 	} else if(x<-10){
 		p.extMove(-1);
 	}
-	if(y-height/2!==0){
-		if(-y-height/2>0){
-			p.extJump();
-		}
+	if(-y-height/2>0){
+		p.extJump();
 	}
 }
 
