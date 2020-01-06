@@ -8,6 +8,7 @@ var Engine = Matter.Engine,
 var isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 var mousePos;
 var pmousePos;
+var touching=false;
 var dx=0,dy=0;
 var engine = Engine.create();
 var world = engine.world;
@@ -40,10 +41,8 @@ function checkMouse(x,y,p){
 	} else if(x<-10){
 		p.extMove(-1);
 	}
-	if(y-height/2!==0){
-		if(-y>0){
-			p.extJump();
-		}
+	if(-y>10){
+		p.extJump();
 	}
 }
 
@@ -87,14 +86,18 @@ function draw() {
 		if(isMobile) checkMouse(dx,dy,players[k]);
 		players[k].logic(walls,flags,players);
 	}
+	if(touching){
+		circle(pmousePos.x, pmousePos.y, 50);
+		circle(mousePos.x, mousePos.y, 50);
+	}
 	// for (var m = 0; m < boxes.length; m++) {
 		// boxes[m].show(players);
 	// }
 }
 
 function touchStarted() {
-	pmousePos.x=mousePos.x,
-	pmousePos.y=mousePos.x;
+	pmousePos=createVector(mouseX,mouseY);
+	touching=true;
 }
 
 function touchMoved() {
@@ -105,4 +108,5 @@ function touchMoved() {
 function touchEnded() {
 	dx=0;
 	dy=0;
+	touching=false;
 }
