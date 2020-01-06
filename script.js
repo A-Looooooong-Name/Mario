@@ -35,13 +35,13 @@ function genWorld(w){
 }
 
 function checkMouse(x,y,p){
-	if(x>10){
+	if(x-width/2>10){
 		p.extMove(1);
 	} else if(x<-10){
 		p.extMove(-1);
 	}
-	if(y!==0){
-		if(-y>20){
+	if(y-height/2!==0){
+		if(-y-height/2>0){
 			p.extJump();
 		}
 	}
@@ -93,7 +93,8 @@ function draw() {
 }
 
 function mousePressed() {
-	pmousePos=createVector(mousePos.x,mousePos.y);
+	pmousePos.x=mousePos.x,
+	pmousePos.y=mousePos.x;
 }
 
 function mouseDragged() {
