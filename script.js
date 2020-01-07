@@ -86,7 +86,7 @@ function draw() {
 		if(isMobile) checkMouse(dx,dy,players[k]);
 		players[k].logic(walls,flags,players);
 	}
-	if(touching){
+	if(touching&&isMobile){
 		circle(pmousePos.x, pmousePos.y, 50);
 		circle(mousePos.x, mousePos.y, 50);
 	}
