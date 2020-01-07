@@ -36,12 +36,12 @@ function genWorld(w){
 }
 
 function checkMouse(x,y,p){
-	if(x>10){
+	if(x>50){
 		p.extMove(1);
-	} else if(x<-10){
+	} else if(x<-50){
 		p.extMove(-1);
 	}
-	if(-y>10){
+	if(-y>50){
 		p.extJump();
 	}
 }

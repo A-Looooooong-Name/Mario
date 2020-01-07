@@ -3,6 +3,7 @@ body {
 	margin: 0;
 	background-color: #9b7653;
 	overflow: hidden;
+	position: fixed;
 }
 
 #left {
