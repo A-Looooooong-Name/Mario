@@ -23,6 +23,8 @@ var spikes = [];
 var flags = [];
 var ground;
 var b;
+var font;
+var lives=3,coins=0;
 
 function genWorld(w){
 	engine = Engine.create();
@@ -44,6 +46,11 @@ function checkMouse(x,y,p){
 	if(-y>50){
 		p.extJump();
 	}
+}
+
+function preload(){
+	font=loadFont("media/font.ttf");
+	coin=loadImage("media/coin.png");
 }
 
 function setup(){
@@ -68,6 +75,7 @@ function setup(){
 // }
 
 function draw() {
+	coins=0;
 	mousePos.x=mouseX;
 	mousePos.y=mouseY;
 	background(147,187,236);
@@ -85,11 +93,16 @@ function draw() {
 	for(var k=0;k<players.length;k++){
 		if(isMobile) checkMouse(dx,dy,players[k]);
 		players[k].logic(walls,flags,players);
+		coins+=players[k].coins;
 	}
 	if(touching&&isMobile){
 		circle(pmousePos.x, pmousePos.y, 50);
 		circle(mousePos.x, mousePos.y, 50);
 	}
+	textFont(font,15);
+	fill(255);
+	text("MARIO x "+players[0].lives+"       x "+coins,40,40);
+	image(coin,250,22,15,21);
 	// for (var m = 0; m < boxes.length; m++) {
 		// boxes[m].show(players);
 	// }

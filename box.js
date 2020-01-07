@@ -1,4 +1,6 @@
 function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
+	this.coins=0;
+	this.lives=3;
 	this.imagesA=[loadImage("media/idleA.png"),loadImage("media/walk1A.png"),loadImage("media/walk2A.png"),loadImage("media/walk3A.png"),loadImage("media/jumpA.png"),loadImage("media/slideA.png")];
 	this.imagesB=[loadImage("media/idleB.png"),loadImage("media/walk1B.png"),loadImage("media/walk2B.png"),loadImage("media/walk3B.png"),loadImage("media/jumpB.png"),loadImage("media/slideB.png")];
 	this.keys=[up, right, left];
