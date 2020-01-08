@@ -129,7 +129,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			slide=0;
 		}
 	};
-	this.logic=function(grounds,flags,players,coins){
+	this.logic=function(grounds,flags,players,coins,bricks){
 		let collision;
 		for (var j = 0; j < grounds.length; j++) {
 			collision = Matter.SAT.collides(this.sensor, grounds[j].body);
@@ -156,6 +156,14 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			if (collision.collided&&!coins[n].taken) {
 				this.coins++;
 				coins[n].taken=true;
+			}
+		}
+		if(this.body.velocity.y<10&&jump){
+			for (var o = 0; o < bricks.length; o++) {
+				collision = Matter.SAT.collides(this.body, bricks[o].body);
+				if (collision.collided&&!bricks[o].broken) {
+					bricks[o].broken=true;
+				}
 			}
 		}
 		for (var i = 0; i < flags.length; i++) {
@@ -492,6 +500,52 @@ function Coin(x,y) {
 		// rect((x-sumx)+width/2-25,(y-sumy)+height/2, 50, 50);
 		// pop();
 		if(!this.taken) image(this.image,(x-sumx)+width/2-25,(y-sumy)+height/2,30,42);
+	};
+}
+
+function Brick(x,y) {
+	this.body = Bodies.rectangle(x, y, 50, 50, {isStatic: true});
+	this.image = [loadImage("media/brick.png"),loadImage("media/brokenbrick.png")];
+	this.broken=0;
+	let counter=0;
+	World.add(world, this.body);
+	this.show = function(p) {
+		var sumx=0;
+		var sumy=0;
+		var ps=0;
+		for(var i=0;i<p.length;i++){
+			if(p[i].body){
+				sumx+=p[i].body.position.x;
+				sumy+=p[i].body.position.y;
+				ps++;
+			}
+		}
+		if(ps){
+			sumx/=ps;
+			sumy/=ps;
+		} else {
+			sumx=0;
+			sumy=200;
+		}
+		// push();
+		// translate(-sumx+width/2, 1000-sumy+height/2);
+		// translate(pos.x+width/2,pos.y);
+		// rectMode(CENTER);
+		// noStroke();
+		// fill(155, 118, 83);
+		// fill(0, 0, 0);
+		// rect((x-sumx)+width/2-25,(y-sumy)+height/2, 50, 50);
+		// pop();
+		if(!this.broken){
+			image(this.image[0],(x-sumx)+width/2-25,(y-sumy)+height/2-25,50,50);
+			counter=0;
+		} else {
+			this.body.isSensor=true;
+			if(counter<1){
+				image(this.image[1],(x-sumx)+width/2-25,(y-sumy)+height/2-25,50,50);
+				counter+=0.1;
+			}
+		}
 	};
 }
 

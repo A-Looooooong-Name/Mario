@@ -22,6 +22,7 @@ var walls = [];
 var spikes = [];
 var flags = [];
 var coins=[];
+var bricks=[];
 var ground;
 var b;
 var font;
@@ -34,6 +35,7 @@ function genWorld(w){
 	flags = [];
 	boxes = [];
 	coins = [];
+	bricks = [];
 	players = [new Player(0,100)]
 	Engine.run(engine);
 }
@@ -79,7 +81,7 @@ function setup(){
 function draw() {
 	for(var k=0;k<players.length;k++){
 		if(isMobile) checkMouse(dx,dy,players[k]);
-		players[k].logic(walls,flags,players,coins);
+		players[k].logic(walls,flags,players,coins,bricks);
 		// coins++;
 	}
 	mousePos.x=mouseX;
@@ -98,6 +100,9 @@ function draw() {
 	}
 	for(var m=0;m<coins.length;m++){
 		coins[m].show(players);
+	}
+	for(var n=0;n<bricks.length;n++){
+		bricks[n].show(players);
 	}
 	for(var k=0;k<players.length;k++){
 		players[k].show();
