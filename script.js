@@ -75,7 +75,13 @@ function setup(){
 // }
 
 function draw() {
-	coins=0;
+	for(var k=0;k<players.length;k++){
+		if(isMobile) checkMouse(dx,dy,players[k]);
+		players[k].logic(walls,flags,players);
+		coins=0;
+		coins+=players[k].coins;
+		// coins++;
+	}
 	mousePos.x=mouseX;
 	mousePos.y=mouseY;
 	background(147,187,236);
@@ -91,13 +97,15 @@ function draw() {
 		spikes[l].show(players);
 	}
 	for(var k=0;k<players.length;k++){
-		if(isMobile) checkMouse(dx,dy,players[k]);
-		players[k].logic(walls,flags,players);
-		coins+=players[k].coins;
+		players[k].show();
 	}
 	if(touching&&isMobile){
-		circle(pmousePos.x, pmousePos.y, 50);
-		circle(mousePos.x, mousePos.y, 50);
+		stroke(140,140,140,50);
+		fill(150,150,150,90);
+		circle(pmousePos.x, pmousePos.y, 30);
+		circle(pmousePos.x, pmousePos.y, 40);
+		circle(mousePos.x, mousePos.y, 30);
+		circle(mousePos.x, mousePos.y, 40);
 	}
 	textFont(font,15);
 	fill(255);
