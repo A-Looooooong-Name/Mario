@@ -21,18 +21,19 @@ var walls = [];
 // var boxes = [];
 var spikes = [];
 var flags = [];
+var coins=[];
 var ground;
 var b;
 var font;
-var lives=3,coins=0;
 
 function genWorld(w){
 	engine = Engine.create();
 	world = engine.world;
-	walls = [new Ground(0,1000,10050,1000,"ground")];
+	walls = [new Ground(0,1000,10000,1000,"ground")];
 	spikes = [];
 	flags = [];
 	boxes = [];
+	coins = [];
 	players = [new Player(0,100)]
 	Engine.run(engine);
 }
@@ -54,6 +55,7 @@ function preload(){
 }
 
 function setup(){
+	imageMode(CENTER);
 	mousePos = createVector(mouseX, mouseY);
 	pmousePos = createVector(mouseX, mouseY);
 	for(let i=0;i<players.length;i++){
@@ -77,9 +79,7 @@ function setup(){
 function draw() {
 	for(var k=0;k<players.length;k++){
 		if(isMobile) checkMouse(dx,dy,players[k]);
-		players[k].logic(walls,flags,players);
-		coins=0;
-		coins+=players[k].coins;
+		players[k].logic(walls,flags,players,coins);
 		// coins++;
 	}
 	mousePos.x=mouseX;
@@ -96,6 +96,9 @@ function draw() {
 	for (var l = 0; l < spikes.length; l++) {
 		spikes[l].show(players);
 	}
+	for(var m=0;m<coins.length;m++){
+		coins[m].show(players);
+	}
 	for(var k=0;k<players.length;k++){
 		players[k].show();
 	}
@@ -103,14 +106,14 @@ function draw() {
 		stroke(140,140,140,50);
 		fill(150,150,150,90);
 		circle(pmousePos.x, pmousePos.y, 30);
-		circle(pmousePos.x, pmousePos.y, 40);
+		circle(pmousePos.x, pmousePos.y, 45);
 		circle(mousePos.x, mousePos.y, 30);
-		circle(mousePos.x, mousePos.y, 40);
+		circle(mousePos.x, mousePos.y, 45);
 	}
 	textFont(font,15);
 	fill(255);
-	text("MARIO x "+players[0].lives+"       x "+coins,40,40);
-	image(coin,250,22,15,21);
+	text("MARIO x "+players[0].lives+"       x "+players[0].coins,40,40);
+	image(coin,250,32,15,21);
 	// for (var m = 0; m < boxes.length; m++) {
 		// boxes[m].show(players);
 	// }

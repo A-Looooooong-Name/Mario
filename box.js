@@ -129,7 +129,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			slide=0;
 		}
 	};
-	this.logic=function(grounds,flags,players){
+	this.logic=function(grounds,flags,players,coins){
 		let collision;
 		for (var j = 0; j < grounds.length; j++) {
 			collision = Matter.SAT.collides(this.sensor, grounds[j].body);
@@ -151,10 +151,11 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 				// jump=false;
 			// }
 		// }
-		for (var n = 0; n < flags.length; n++) {
-			collision = Matter.SAT.collides(this.body, flags[n].body);
-			if (collision.collided) {
-				jump=false;
+		for (var n = 0; n < coins.length; n++) {
+			collision = Matter.SAT.collides(this.body, coins[n].body);
+			if (collision.collided&&!coins[n].taken) {
+				this.coins++;
+				coins[n].taken=true;
 			}
 		}
 		for (var i = 0; i < flags.length; i++) {
@@ -166,8 +167,13 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		for (var l = 0; l < spikes.length; l++) {
 			collision = Matter.SAT.collides(this.body, spikes[l].body);
 			if (collision.collided) {
-				this.remove();
 				this.init();
+				if(this.lives>1){
+					this.lives--;
+				} else {
+					this.lives=3;
+					this.coins=0;
+				}
 				// console.log("dead");
 			}
 		}
@@ -450,6 +456,42 @@ function Ground(x,y,w,h,type="wall") {
 				image(this.image,(x-sumx)+width/2+j*50,(y-sumy)+height/2+i*50,50,50);
 			}
 		}
+	};
+}
+
+function Coin(x,y) {
+	this.body = Bodies.rectangle(x, y, 30, 42, {isSensor: true, isStatic: true});
+	this.image = loadImage("media/coin.png");
+	this.taken=false;
+	World.add(world, this.body);
+	this.show = function(p) {
+		var sumx=0;
+		var sumy=0;
+		var ps=0;
+		for(var i=0;i<p.length;i++){
+			if(p[i].body){
+				sumx+=p[i].body.position.x;
+				sumy+=p[i].body.position.y;
+				ps++;
+			}
+		}
+		if(ps){
+			sumx/=ps;
+			sumy/=ps;
+		} else {
+			sumx=0;
+			sumy=200;
+		}
+		// push();
+		// translate(-sumx+width/2, 1000-sumy+height/2);
+		// translate(pos.x+width/2,pos.y);
+		// rectMode(CENTER);
+		// noStroke();
+		// fill(155, 118, 83);
+		// fill(0, 0, 0);
+		// rect((x-sumx)+width/2-25,(y-sumy)+height/2, 50, 50);
+		// pop();
+		if(!this.taken) image(this.image,(x-sumx)+width/2-25,(y-sumy)+height/2,30,42);
 	};
 }
 
