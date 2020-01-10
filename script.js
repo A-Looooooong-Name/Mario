@@ -6,6 +6,7 @@ var Engine = Matter.Engine,
 	Body = Matter.Body;
 	Constraint = Matter.Constraint;
 var isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+if(isMobile) offsetY=50;
 var mousePos;
 var pmousePos;
 var touching=false;
@@ -25,6 +26,7 @@ var flags = [];
 var coins=[];
 var bricks=[];
 var enemies=[];
+var pwrups=[];
 var ground;
 var b;
 var font;
@@ -37,8 +39,13 @@ function add(type,x,y){
 		case "ground":
 			walls.push(new Ground(x,y,1,1,"ground"));
 			break;
-		case "qblock":
-			qblocks.push(new QBlock(x,y));
+		case "qblock1":
+			let idx1=qblocks.push(new QBlock(x,y))-1;
+			qblocks[idx1].addContent(pwrups);
+			break;
+		case "qblock2":
+			let idx2=qblocks.push(new QBlock(x,y))-1;
+			qblocks[idx2].addContent(coins,coin);
 			break;
 		case "brick":
 			bricks.push(new Brick(x,y));
@@ -55,6 +62,9 @@ function add(type,x,y){
 		case "players":
 			players.push(new Player(x,y));
 			break;
+		case "mushroom":
+			pwrups.push(new Mushroom(x,y));
+			break;
 	}
 }
 
@@ -69,6 +79,7 @@ function genWorld(w){
 	coins = [];
 	bricks = [];
 	qblocks=[];
+	pwrups=[];
 	enemies=[new Goomba(1,0)];
 	Engine.run(engine);
 }
@@ -119,7 +130,7 @@ function draw() {
 	// Engine.update(engine);
 	for(var q=0;q<players.length;q++){
 		if(isMobile) checkMouse(dx,dy,players[q]);
-		players[q].logic(walls,flags,players,coins,bricks,qblocks,enemies);
+		players[q].logic(walls,flags,players,coins,bricks,qblocks,enemies,pwrups);
 		// coins++;
 	}
 	for(var r=0;r<enemies.length;r++){
@@ -140,6 +151,9 @@ function draw() {
 	}
 	for(var m=0;m<coins.length;m++){
 		coins[m].show(players);
+	}
+	for(var s=0;s<pwrups.length;s++){
+		pwrups[s].show(players);
 	}
 	for(var n=0;n<bricks.length;n++){
 		bricks[n].show(players);
@@ -170,7 +184,25 @@ function draw() {
 	// }
 }
 
-// function mousePressed() {
+function mousePressed() {
+	var sumx=0;
+	var sumy=0;
+	var ps=0;
+	for(var i=0;i<players.length;i++){
+		if(players[i].body){
+			sumx+=players[i].body.position.x;
+			sumy+=players[i].body.position.y;
+			ps++;
+		}
+	}
+	if(ps){
+		sumx/=ps;
+		sumy/=ps;
+	}
+	add("brick",Math.floor((mouseX-width/2+25+sumx)/50),Math.floor((mouseY-height/2-offsetY+sumy+25)/50));
+}
+
+// function mouseDragged() {
 	// var sumx=0;
 	// var sumy=0;
 	// var ps=0;
