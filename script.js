@@ -31,13 +31,13 @@ var ground;
 var b;
 var font;
 
-function add(type,x,y){
+function add(type,x,y,w,h){
 	switch (type){
 		case "wall":
-			walls.push(new Ground(x,y,1,1,"wall"));
+			walls.push(new Ground(x,y,w,h,"wall"));
 			break;
 		case "ground":
-			walls.push(new Ground(x,y,1,1,"ground"));
+			walls.push(new Ground(x,y,w,h,"ground"));
 			break;
 		case "qblock1":
 			let idx1=qblocks.push(new QBlock(x,y))-1;
@@ -59,11 +59,14 @@ function add(type,x,y){
 		case "flag":
 			flags.push(new Flag(x,y));
 			break;
-		case "players":
+		case "player":
 			players.push(new Player(x,y));
 			break;
 		case "mushroom":
 			pwrups.push(new Mushroom(x,y));
+			break;
+		case "goomba":
+			enemies.push(new Goomba(x,y,-1));
 			break;
 	}
 }
@@ -71,8 +74,8 @@ function add(type,x,y){
 function genWorld(w){
 	engine = Engine.create();
 	world = engine.world;
-	players = [new Player(0,-1)]
-	walls = [new Ground(0,0,1,1,"ground"),new Ground(0,1,10,1,"ground"),new Ground(9,0,1,1,"ground")];
+	players = []
+	walls = [new Ground(-10,-50,10,50,"border")];
 	spikes = [new Ground(0,520,1000,10,"ground"),new Ground(0,520,-1000,10,"ground"),new Ground(520,0,10,1000,"ground"),new Ground(520,0,10,1000,"ground")];
 	flags = [];
 	boxes = [];
@@ -80,8 +83,25 @@ function genWorld(w){
 	bricks = [];
 	qblocks=[];
 	pwrups=[];
-	enemies=[new Goomba(1,0)];
+	enemies=[];
 	Engine.run(engine);
+	add("ground",-100,0,170,10);
+	add("player",10,-1);
+	add("qblock2",17,-4);
+	add("brick",21,-4);
+	add("qblock1",22,-4);
+	add("goomba",23,-1);
+	add("brick",23,-4);
+	add("qblock2",23,-8);
+	add("qblock2",24,-4);
+	add("brick",25,-4);
+	add("wall",29,-2,2,2);
+	add("wall",39,-3,2,3);
+	add("goomba",41,-1);
+	add("wall",47,-4,2,4);
+	add("goomba",52,-1);
+	add("goomba",53,-1);
+	add("wall",58,-4,2,4);
 }
 
 function checkMouse(x,y,p){
@@ -107,7 +127,7 @@ function setup(){
 	for(let i=0;i<players.length;i++){
 		players[k].init();
 	}
-	genWorld(0);
+	genWorld();
 	createCanvas(window.innerWidth, window.innerHeight-4);
 	
 	background(147,187,236);
@@ -138,7 +158,7 @@ function draw() {
 	}
 	mousePos.x=mouseX;
 	mousePos.y=mouseY;
-	background(147,187,236);
+	background(123,178,255);
 	// background(255, 255, 255);
 	for (var i = 0; i < walls.length; i++) {
 		walls[i].show(players);

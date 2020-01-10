@@ -189,8 +189,8 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			collision = Matter.SAT.collides(this.body, pwrups[i].body);
 			if (collision.collided&&!pwrups[i].used&&pwrups[i].activated===2) {
 				pwrups[i].used=true;
-				big=true;
 				if(!big){
+					let x=this.body.position.x,y=this.body.position.y;
 					World.remove(world,this.body);
 					World.remove(world,this.sensor);
 					World.remove(world,this.tsensor);
@@ -200,7 +200,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 					World.remove(world,this.c2);
 					World.remove(world,this.c3);
 					World.remove(world,this.c4);
-					this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 100, {
+					this.body = Bodies.rectangle(x, y, 50, 100, {
 						friction: 0.2,
 						restitution: 0,
 						inertia: Infinity,
@@ -209,10 +209,10 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 							group: -1
 						}
 					});
-					this.sensor = Bodies.rectangle(x*50+25, y*50+25, 50, 1, {isSensor:true, inertia:Infinity});
-					this.tsensor = Bodies.rectangle(x*50+25, y*50+25, 48, 1, {isSensor:true, inertia:Infinity});
-					this.lsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 95, { isSensor:true, inertia:Infinity});
-					this.rsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 95, { isSensor:true, inertia:Infinity});
+					this.sensor = Bodies.rectangle(x, y, 50, 1, {isSensor:true, inertia:Infinity});
+					this.tsensor = Bodies.rectangle(x, y, 48, 1, {isSensor:true, inertia:Infinity});
+					this.lsensor = Bodies.rectangle(x, y, 1, 95, { isSensor:true, inertia:Infinity});
+					this.rsensor = Bodies.rectangle(x, y, 1, 95, { isSensor:true, inertia:Infinity});
 					this.c1 = Constraint.create({
 						bodyA:this.body,
 						bodyB:this.sensor,
@@ -254,6 +254,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 					World.add(world, this.c2);
 					World.add(world, this.c3);
 					World.add(world, this.c4);
+					big=true;
 				} else {
 					this.coins+=10;
 				}
@@ -414,6 +415,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			for (var j = 0; j < players.length; j++) {
 				if (Matter.SAT.collides(enemies[i].tsensor, players[j].sensor).collided) {
 					enemies[i].dead=true;
+					this.coins+=2;
 				}
 			}
 			if(!enemies[i].dead){
@@ -549,15 +551,17 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			this.canJump=0;
 			slide=0;
 			for (i = 0; i < [].concat(grounds,bricks,qblocks).length; i++) {
-				if (Matter.SAT.collides(this.lsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
-					this.canJump=1;
-					slide=2;
-				} else if (Matter.SAT.collides(this.rsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
-					this.canJump=1;
-					slide=1;
-				}
-				if(Matter.SAT.collides(this.sensor, [].concat(grounds,bricks,qblocks,players,spikes)[i].body).collided){
-					this.canJump=1;
+				if([].concat(grounds,bricks,qblocks)[i].type!=="border"){
+					if (Matter.SAT.collides(this.lsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
+						this.canJump=1;
+						slide=2;
+					} else if (Matter.SAT.collides(this.rsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
+						this.canJump=1;
+						slide=1;
+					}
+					if(Matter.SAT.collides(this.sensor, [].concat(grounds,bricks,qblocks,players,spikes)[i].body).collided){
+						this.canJump=1;
+					}
 				}
 			}
 			// for (var i = 0; i < grounds.length; i++) {
@@ -772,8 +776,9 @@ function Flag(x, y, next) {
 }
 
 function Ground(x,y,w,h,type="wall") {
+	this.type=type;
 	this.body = Bodies.rectangle(x*50+w*25, y*50+h*25, w*50, h*50, {friction: 1,restitution: 0,isStatic: true});
-	this.image = type==="ground"? loadImage("media/wall1.png") : loadImage("media/wall2.png");
+	this.image = this.type==="ground"? loadImage("media/wall1.png") : loadImage("media/wall2.png");
 	World.add(world, this.body);
 	this.show = function(p) {
 		var pos = this.body.position;
@@ -803,9 +808,11 @@ function Ground(x,y,w,h,type="wall") {
 		// fill(0, 0, 0);
 		// rect(0, 0, 1000, 500);
 		// pop();
-		for(let i=-h/2;i<h/2;i++){
-			for(let j=-w/2;j<w/2;j++){
-				image(this.image,(pos.x-sumx)+width/2+j*50,(pos.y-sumy)+height/2+i*50+offsetY,50,50);
+		if(this.type!=="border"){
+			for(let i=-h/2;i<h/2;i++){
+				for(let j=-w/2;j<w/2;j++){
+					image(this.image,(pos.x-sumx)+width/2+j*50,(pos.y-sumy)+height/2+i*50+offsetY,50,50);
+				}
 			}
 		}
 	};
