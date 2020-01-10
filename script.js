@@ -170,23 +170,23 @@ function draw() {
 	// }
 }
 
-function mousePressed() {
-	var sumx=0;
-	var sumy=0;
-	var ps=0;
-	for(var i=0;i<players.length;i++){
-		if(players[i].body){
-			sumx+=players[i].body.position.x;
-			sumy+=players[i].body.position.y;
-			ps++;
-		}
-	}
-	if(ps){
-		sumx/=ps;
-		sumy/=ps;
-	}
-	add("brick",Math.floor((mouseX-width/2+25+sumx)/50),Math.floor((mouseY-height/2-offsetY+sumy+25)/50));
-}
+// function mousePressed() {
+	// var sumx=0;
+	// var sumy=0;
+	// var ps=0;
+	// for(var i=0;i<players.length;i++){
+		// if(players[i].body){
+			// sumx+=players[i].body.position.x;
+			// sumy+=players[i].body.position.y;
+			// ps++;
+		// }
+	// }
+	// if(ps){
+		// sumx/=ps;
+		// sumy/=ps;
+	// }
+	// add("brick",Math.floor((mouseX-width/2+25+sumx)/50),Math.floor((mouseY-height/2-offsetY+sumy+25)/50));
+// }
 
 function touchStarted() {
 	pmousePos=createVector(mouseX,mouseY);
