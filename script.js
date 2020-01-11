@@ -84,24 +84,40 @@ function genWorld(w){
 	qblocks=[];
 	pwrups=[];
 	enemies=[];
+	if(w===1){
+		add("ground",-100,0,170,10);
+		add("player",10,-1);
+		add("qblock2",17,-4);
+		add("brick",21,-4);
+		add("qblock1",22,-4);
+		add("goomba",23,-1);
+		add("brick",23,-4);
+		add("qblock2",23,-8);
+		add("qblock2",24,-4);
+		add("brick",25,-4);
+		add("wall",29,-2,2,2);
+		add("wall",39,-3,2,3);
+		add("goomba",41,-1);
+		add("wall",47,-4,2,4);
+		add("goomba",52,-1);
+		add("goomba",53,-1);
+		add("wall",58,-4,2,4);
+		add("ground",72,0,15,10);
+		add("brick",78,-4);
+		add("qblock1",79,-4);
+		add("brick",80,-4);
+		add("brick",81,-8);
+		add("goomba",81,-9);
+		add("brick",82,-8);
+		add("brick",83,-8);
+		add("goomba",83,-9);
+		add("brick",84,-8);
+		add("brick",85,-8);
+		add("brick",86,-8);
+		add("brick",87,-8);
+		add("brick",88,-8);
+	}
 	Engine.run(engine);
-	add("ground",-100,0,170,10);
-	add("player",10,-1);
-	add("qblock2",17,-4);
-	add("brick",21,-4);
-	add("qblock1",22,-4);
-	add("goomba",23,-1);
-	add("brick",23,-4);
-	add("qblock2",23,-8);
-	add("qblock2",24,-4);
-	add("brick",25,-4);
-	add("wall",29,-2,2,2);
-	add("wall",39,-3,2,3);
-	add("goomba",41,-1);
-	add("wall",47,-4,2,4);
-	add("goomba",52,-1);
-	add("goomba",53,-1);
-	add("wall",58,-4,2,4);
 }
 
 function checkMouse(x,y,p){
@@ -127,7 +143,7 @@ function setup(){
 	for(let i=0;i<players.length;i++){
 		players[k].init();
 	}
-	genWorld();
+	genWorld(1);
 	createCanvas(window.innerWidth, window.innerHeight-4);
 	
 	background(147,187,236);
