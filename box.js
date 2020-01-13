@@ -902,9 +902,9 @@ function Brick(x,y) {
 	};
 }
 
-function QBlock(x,y) {
+function QBlock(x,y,disguised) {
 	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 50, {isStatic: true});
-	this.image = [loadImage("media/qblock1.png"),loadImage("media/qblock2.png")];
+	this.image = [disguised? loadImage("media/brick.png") : loadImage("media/qblock1.png"),loadImage("media/qblock2.png")];
 	this.used=0;
 	let i=50;
 	this.content;
@@ -955,7 +955,7 @@ function QBlock(x,y) {
 			this.content.activated=2;
 		}
 	};
-	this.addContent=function(arr,content="mushroom"){
+	this.addContent=function(content,arr){
 		arr.push(this.content= content==="mushroom"? new Mushroom(x,y) : new Coin(x,y));
 	};
 	this.use=function(p){

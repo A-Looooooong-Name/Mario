@@ -31,7 +31,7 @@ var ground;
 var b;
 var font;
 
-function add(type,x,y,w=1,h=1){
+function add(type,x,y,w,h){
 	switch (type){
 		case "border":
 			walls.push(new Ground(x,y,w,h,"border"));
@@ -42,13 +42,13 @@ function add(type,x,y,w=1,h=1){
 		case "ground":
 			walls.push(new Ground(x,y,w,h,"ground"));
 			break;
-		case "qblock1":
-			let idx1=qblocks.push(new QBlock(x,y))-1;
-			qblocks[idx1].addContent(pwrups);
-			break;
-		case "qblock2":
-			let idx2=qblocks.push(new QBlock(x,y))-1;
-			qblocks[idx2].addContent(coins,coin);
+		case "qblock":
+			let idx1=qblocks.push(new QBlock(x,y,!!h))-1;
+			if(w===0){
+				qblocks[idx1].addContent("mushroom",pwrups);
+			} else if(w===1){
+				qblocks[idx1].addContent("coin",coins);
+			}
 			break;
 		case "brick":
 			bricks.push(new Brick(x,y));
@@ -69,7 +69,7 @@ function add(type,x,y,w=1,h=1){
 			pwrups.push(new Mushroom(x,y));
 			break;
 		case "goomba":
-			enemies.push(new Goomba(x,y,-1));
+			enemies.push(new Goomba(x,y,w));
 			break;
 	}
 }
@@ -97,36 +97,41 @@ function genWorld(w){
 		case 1:
 			add("border",-10,-50,10,50);
 			add("ground",-100,0,170,10);
-			add("qblock2",17,-4);
+			add("player",10,-1);
+			add("qblock",17,-4,1,0);
 			add("brick",21,-4);
-			add("qblock1",22,-4);
-			add("goomba",23,-1);
+			add("qblock",22,-4,0,0);
+			add("goomba",23,-1,-1);
 			add("brick",23,-4);
-			add("qblock2",23,-8);
-			add("qblock2",24,-4);
+			add("qblock",23,-8,1,0);
+			add("qblock",24,-4,1,0);
 			add("brick",25,-4);
 			add("wall",29,-2,2,2);
 			add("wall",39,-3,2,3);
-			add("goomba",41,-1);
+			add("goomba",41,-1,-1);
 			add("wall",47,-4,2,4);
-			add("goomba",52,-1);
-			add("goomba",53,-1);
+			add("goomba",52,-1,-1);
+			add("goomba",53,-1,-1);
 			add("wall",58,-4,2,4);
 			add("ground",72,0,15,10);
 			add("brick",78,-4);
-			add("player",78,-5);
-			add("qblock1",79,-4);
+			add("qblock",79,-4,0);
 			add("brick",80,-4);
 			add("brick",81,-8);
-			add("goomba",81,-9);
+			add("goomba",81,-9,-1);
 			add("brick",82,-8);
 			add("brick",83,-8);
-			add("goomba",83,-9);
+			add("goomba",83,-9,-1);
 			add("brick",84,-8);
 			add("brick",85,-8);
 			add("brick",86,-8);
 			add("brick",87,-8);
 			add("brick",88,-8);
+			add("ground",90,0,70,10);
+			add("brick",92,-8);
+			add("brick",93,-8);
+			add("brick",94,-8);
+			add("brick",94,-8);
 			break;
 	}
 	Engine.run(engine);
