@@ -31,8 +31,11 @@ var ground;
 var b;
 var font;
 
-function add(type,x,y,w,h){
+function add(type,x,y,w=1,h=1){
 	switch (type){
+		case "border":
+			walls.push(new Ground(x,y,w,h,"border"));
+			break;
 		case "wall":
 			walls.push(new Ground(x,y,w,h,"wall"));
 			break;
@@ -75,7 +78,7 @@ function genWorld(w){
 	engine = Engine.create();
 	world = engine.world;
 	players = []
-	walls = [new Ground(-10,-50,10,50,"border")];
+	walls = [];
 	spikes = [new Ground(0,520,1000,10,"ground"),new Ground(0,520,-1000,10,"ground"),new Ground(520,0,10,1000,"ground"),new Ground(520,0,10,1000,"ground")];
 	flags = [];
 	boxes = [];
@@ -84,38 +87,47 @@ function genWorld(w){
 	qblocks=[];
 	pwrups=[];
 	enemies=[];
-	if(w===1){
-		add("ground",-100,0,170,10);
-		add("player",10,-1);
-		add("qblock2",17,-4);
-		add("brick",21,-4);
-		add("qblock1",22,-4);
-		add("goomba",23,-1);
-		add("brick",23,-4);
-		add("qblock2",23,-8);
-		add("qblock2",24,-4);
-		add("brick",25,-4);
-		add("wall",29,-2,2,2);
-		add("wall",39,-3,2,3);
-		add("goomba",41,-1);
-		add("wall",47,-4,2,4);
-		add("goomba",52,-1);
-		add("goomba",53,-1);
-		add("wall",58,-4,2,4);
-		add("ground",72,0,15,10);
-		add("brick",78,-4);
-		add("qblock1",79,-4);
-		add("brick",80,-4);
-		add("brick",81,-8);
-		add("goomba",81,-9);
-		add("brick",82,-8);
-		add("brick",83,-8);
-		add("goomba",83,-9);
-		add("brick",84,-8);
-		add("brick",85,-8);
-		add("brick",86,-8);
-		add("brick",87,-8);
-		add("brick",88,-8);
+	switch(w){
+		case 0:
+			for (i = -3; i<3; i++) {
+				add("qblock2",i,0);
+			}
+			add("goomba",1,-1);
+			break;
+		case 1:
+			add("border",-10,-50,10,50);
+			add("ground",-100,0,170,10);
+			add("qblock2",17,-4);
+			add("brick",21,-4);
+			add("qblock1",22,-4);
+			add("goomba",23,-1);
+			add("brick",23,-4);
+			add("qblock2",23,-8);
+			add("qblock2",24,-4);
+			add("brick",25,-4);
+			add("wall",29,-2,2,2);
+			add("wall",39,-3,2,3);
+			add("goomba",41,-1);
+			add("wall",47,-4,2,4);
+			add("goomba",52,-1);
+			add("goomba",53,-1);
+			add("wall",58,-4,2,4);
+			add("ground",72,0,15,10);
+			add("brick",78,-4);
+			add("player",78,-5);
+			add("qblock1",79,-4);
+			add("brick",80,-4);
+			add("brick",81,-8);
+			add("goomba",81,-9);
+			add("brick",82,-8);
+			add("brick",83,-8);
+			add("goomba",83,-9);
+			add("brick",84,-8);
+			add("brick",85,-8);
+			add("brick",86,-8);
+			add("brick",87,-8);
+			add("brick",88,-8);
+			break;
 	}
 	Engine.run(engine);
 }
@@ -170,7 +182,7 @@ function draw() {
 		// coins++;
 	}
 	for(var r=0;r<enemies.length;r++){
-		enemies[r].logic(players,walls,bricks,qblocks);
+		enemies[r].logic(walls,bricks,qblocks,spikes);
 	}
 	mousePos.x=mouseX;
 	mousePos.y=mouseY;
@@ -213,8 +225,10 @@ function draw() {
 	}
 	textFont(font,15);
 	fill(255);
-	text("MARIO x "+players[0].lives+"       x "+players[0].coins,40,40);
-	image(coin,250,32,15,21);
+	if(players[0]){
+		text("MARIO x "+players[0].lives+"       x "+players[0].coins,40,40);
+		image(coin,250,32,15,21);
+	}
 	// for (var m = 0; m < boxes.length; m++) {
 		// boxes[m].show(players);
 	// }

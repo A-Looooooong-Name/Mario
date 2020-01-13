@@ -413,9 +413,9 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		}
 		for (i = 0; i < enemies.length; i++) {
 			for (var j = 0; j < players.length; j++) {
-				if (Matter.SAT.collides(enemies[i].tsensor, players[j].sensor).collided) {
+				if (Matter.SAT.collides(enemies[i].tsensor, players[j].sensor).collided&&!enemies[i].dead) {
 					enemies[i].dead=true;
-					this.coins+=2;
+					this.coins+=5;
 				}
 			}
 			if(!enemies[i].dead){
@@ -1007,31 +1007,55 @@ function Spike(x, y) {
 
 function Goomba(x, y, dir=1) {
 	this.dead=false;
-	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 50, {friction: 0,restitution: 0,collisionFilter:{group:-1}});
+	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 50, {friction: 0,restitution: 0,collisionFilter:{group:-1}, inertia:Infinity});
 	this.dir=dir;
+	let pdir=dir;
 	this.tsensor = Bodies.rectangle(x*50+25, y*50+25, 50, 10, { isSensor:true, inertia:Infinity});
-	this.lsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 45, { isSensor:true, inertia:Infinity});
-	this.rsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 45, { isSensor:true, inertia:Infinity});
+	this.lsensora = Bodies.rectangle(x*50+25, y*50+25, 10, 10, { isSensor:true, inertia:Infinity});
+	this.lsensorb = Bodies.rectangle(x*50+25, y*50+25, 1, 10, { isSensor:true, inertia:Infinity});
+	this.rsensora = Bodies.rectangle(x*50+25, y*50+25, 10, 10, { isSensor:true, inertia:Infinity});
+	this.rsensorb = Bodies.rectangle(x*50+25, y*50+25, 1, 10, { isSensor:true, inertia:Infinity});
 	this.c1 = Constraint.create({
 		bodyA:this.body,
 		bodyB:this.tsensor,
 		pointA:{x: 0, y: -25},
+		pointB:{x: 0, y: 1},
 		length: 0,
 		damping:1,
 		stiffness:1
 	});
-	this.c2 = Constraint.create({
+	this.c2a = Constraint.create({
 		bodyA:this.body,
-		bodyB:this.lsensor,
+		bodyB:this.lsensora,
 		pointA:{x: -25, y: 0},
+		pointB:{x: -5, y: 0},
 		length: 0,
 		damping:1,
 		stiffness:1
 	});
-	this.c3 = Constraint.create({
+	this.c3a = Constraint.create({
 		bodyA:this.body,
-		bodyB:this.rsensor,
+		bodyB:this.rsensora,
 		pointA:{x: 25, y: 0},
+		pointB:{x: 5, y: 0},
+		length: 0,
+		damping:1,
+		stiffness:1
+	});
+	this.c2b = Constraint.create({
+		bodyA:this.body,
+		bodyB:this.lsensorb,
+		pointA:{x: -26, y: 25},
+		pointB:{x: 5, y: -2.5},
+		length: 0,
+		damping:1,
+		stiffness:1
+	});
+	this.c3b = Constraint.create({
+		bodyA:this.body,
+		bodyB:this.rsensorb,
+		pointA:{x: 26, y: 25},
+		pointB:{x: -5, y: -2.5},
 		length: 0,
 		damping:1,
 		stiffness:1
@@ -1039,11 +1063,15 @@ function Goomba(x, y, dir=1) {
 	this.image=[loadImage("media/goomba1.png"),loadImage("media/goomba2.png"),loadImage("media/goomba3.png")];
 	World.add(world, this.body);
 	World.add(world, this.tsensor);
-	World.add(world, this.lsensor);
-	World.add(world, this.rsensor);
+	World.add(world, this.lsensora);
+	World.add(world, this.rsensora);
+	World.add(world, this.lsensorb);
+	World.add(world, this.rsensorb);
 	World.add(world,this.c1);
-	World.add(world,this.c2);
-	World.add(world,this.c3);
+	World.add(world,this.c2a);
+	World.add(world,this.c3a);
+	World.add(world,this.c2b);
+	World.add(world,this.c3b);
 	let count=0;
 	let dcount=-1;
 	this.show = function(p) {
@@ -1085,33 +1113,75 @@ function Goomba(x, y, dir=1) {
 			}
 			if(dcount>0) image(this.image[2],(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY,50,50);
 		}
-		// pos = this.tsensor.position;
+		// pos = this.lsensora.position;
 		// push();
-		// translate((pos.x-sumx)+width/2-25, (pos.y-sumy)+height/2+offsetY);
+		// translate((pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY);
 		// rectMode(CENTER);
 		// strokeWeight(0);
 		// fill(0);
-		// rect(0, 0, 45, 3);
+		// rect(0, 0, 10, 10);
+		// pop();
+		// pos = this.lsensorb.position;
+		// push();
+		// translate((pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY);
+		// rectMode(CENTER);
+		// strokeWeight(0);
+		// fill(255);
+		// rect(0, 0, 1, 10);
+		// pop();
+		// pos = this.rsensora.position;
+		// push();
+		// translate((pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY);
+		// rectMode(CENTER);
+		// strokeWeight(0);
+		// fill(0);
+		// rect(0, 0, 10, 10);
+		// pop();
+		// pos = this.rsensorb.position;
+		// push();
+		// translate((pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY);
+		// rectMode(CENTER);
+		// strokeWeight(0);
+		// fill(255);
+		// rect(0, 0, 1, 10);
 		// pop();
 	};
-	this.logic=function(players,grounds,bricks,qblocks){
+	this.logic=function(grounds,bricks,qblocks,spikes){
 		if(!this.dead){
+			let right=false;
+			let left=false;
+			for (var i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
+				if (Matter.SAT.collides(this.rsensorb, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+					right=true;
+					break;
+				}
+			}
+			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
+				if (Matter.SAT.collides(this.rsensora, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+					right=false;
+					break;
+				}
+			}
+			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
+				if (Matter.SAT.collides(this.lsensorb, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+					left=true;
+					break;
+				}
+			}
+			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
+				if (Matter.SAT.collides(this.lsensora, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+					left=false;
+					break;
+				}
+			}
+			if(!(left&&right)) this.dir=right-left;
 			Body.setVelocity(this.body,{
 				x: this.dir,
 				y: this.body.velocity.y
 			});
+			// pdir=this.dir;
 		} else {
-			Body.setVelocity(this.body,{
-				x: 0,
-				y: 0
-			});
-		}
-		for (var i = 0; i < [].concat(grounds,bricks,qblocks).length; i++) {
-			if (Matter.SAT.collides(this.lsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
-				this.dir=1;
-			} else if (Matter.SAT.collides(this.rsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
-				this.dir=-1;
-			}
+			this.body.isStatic=true;
 		}
 	};
 }
