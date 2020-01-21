@@ -32,6 +32,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	this.buttons[0].elt.onmouseup=this.buttons[1].elt.onmouseup=this.buttons[2].elt.onmouseup=function(){
 		this.value=0;
 	};
+	this.buttons[0].elt.hidden=this.buttons[1].elt.hidden=this.buttons[2].elt.hidden=!isMobile;
 	this.buttons[0].elt.style.lineHeight=this.buttons[1].elt.style.lineHeight=this.buttons[2].elt.style.lineHeight=window.innerWidth/10-50+"px";
 	this.buttons[0].elt.style.fontSize=this.buttons[1].elt.style.fontSize=this.buttons[2].elt.style.fontSize=window.innerWidth/10-100+"px";
 	this.canJump=0;
