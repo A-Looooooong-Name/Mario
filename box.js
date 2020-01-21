@@ -23,13 +23,13 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	this.buttons[1].size(window.innerWidth/10-50,window.innerWidth/10-50);
 	this.buttons[2].size(window.innerWidth/10-50,window.innerWidth/10-50);
 	this.buttons[0].value=this.buttons[1].value=this.buttons[2].value=0;
-	this.buttons[0].elt.onmousedown=this.buttons[1].elt.onmousedown=this.buttons[2].elt.onmousedown=function(){
+	this.buttons[0].elt.touchstart=this.buttons[1].elt.touchstart=this.buttons[2].elt.touchstart=function(){
 		this.value=1;
 	};
-	this.buttons[0].elt.onmouseleave=this.buttons[1].elt.onmouseleave=this.buttons[2].elt.onmouseleave=function(){
+	this.buttons[0].elt.touchend=this.buttons[1].elt.touchend=this.buttons[2].elt.touchend=function(){
 		this.value=0;
 	};
-	this.buttons[0].elt.onmouseup=this.buttons[1].elt.onmouseup=this.buttons[2].elt.onmouseup=function(){
+	this.buttons[0].elt.touchcancel=this.buttons[1].elt.touchcancel=this.buttons[2].elt.touchcancel=function(){
 		this.value=0;
 	};
 	this.buttons[0].elt.hidden=this.buttons[1].elt.hidden=this.buttons[2].elt.hidden=!isMobile;
