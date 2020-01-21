@@ -1,5 +1,8 @@
+var isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let offsetY=200;
+var currentWorld=1;
 function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
+	this.resPos={x: x, y: y, lastCheckpointIndex: 0};
 	big=true;
 	this.coins=0;
 	this.lives=3;
@@ -9,6 +12,28 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	this.imagesBigA=[loadImage("media/idleBigA.png"),loadImage("media/walkBig1A.png"),loadImage("media/walkBig2A.png"),loadImage("media/walkBig3A.png"),loadImage("media/jumpBigA.png"),loadImage("media/slideBigA.png")];
 	this.imagesBigB=[loadImage("media/idleBigB.png"),loadImage("media/walkBig1B.png"),loadImage("media/walkBig2B.png"),loadImage("media/walkBig3B.png"),loadImage("media/jumpBigB.png"),loadImage("media/slideBigB.png")];
 	this.keys=[up, right, left/* , down */];
+	this.buttons=[createButton("W"), createButton("D"), createButton("A")/* , down */];
+	this.buttons[0].class("up");
+	this.buttons[1].class("right");
+	this.buttons[2].class("left");
+	this.buttons[0].position(window.innerWidth/10*8,window.innerHeight/5*4);
+	this.buttons[1].position(window.innerWidth/10*3,window.innerHeight/5*4);
+	this.buttons[2].position(window.innerWidth/10,window.innerHeight/5*4);
+	this.buttons[0].size(window.innerWidth/10-50,window.innerWidth/10-50);
+	this.buttons[1].size(window.innerWidth/10-50,window.innerWidth/10-50);
+	this.buttons[2].size(window.innerWidth/10-50,window.innerWidth/10-50);
+	this.buttons[0].value=this.buttons[1].value=this.buttons[2].value=0;
+	this.buttons[0].elt.onmousedown=this.buttons[1].elt.onmousedown=this.buttons[2].elt.onmousedown=function(){
+		this.value=1;
+	};
+	this.buttons[0].elt.onmouseleave=this.buttons[1].elt.onmouseleave=this.buttons[2].elt.onmouseleave=function(){
+		this.value=0;
+	};
+	this.buttons[0].elt.onmouseup=this.buttons[1].elt.onmouseup=this.buttons[2].elt.onmouseup=function(){
+		this.value=0;
+	};
+	this.buttons[0].elt.style.lineHeight=this.buttons[1].elt.style.lineHeight=this.buttons[2].elt.style.lineHeight=window.innerWidth/10-50+"px";
+	this.buttons[0].elt.style.fontSize=this.buttons[1].elt.style.fontSize=this.buttons[2].elt.style.fontSize=window.innerWidth/10-100+"px";
 	this.canJump=0;
 	let move = 1;
 	let extMoving = false;
@@ -18,18 +43,19 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	let count=0;
 	let pvy=0;
 	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 100, {
-		friction: 0.2,
+		friction: 0,
 		restitution: 0,
 		inertia: Infinity,
 		chamfer: 50,
+		mass: 1.5,
 		collisionFilter: {
 			group: -1
 		}
 	});
-	this.sensor = Bodies.rectangle(x*50+25, y*50+25, 52, 10, {isSensor:true, inertia:Infinity});
+	this.sensor = Bodies.rectangle(x*50+25, y*50+25, 48, 10, {isSensor:true, inertia:Infinity});
 	this.tsensor = Bodies.rectangle(x*50+25, y*50+25, 48, 1, {isSensor:true, inertia:Infinity});
-	this.lsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 95, { isSensor:true, inertia:Infinity});
-	this.rsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 95, { isSensor:true, inertia:Infinity});
+	this.lsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 45, { isSensor:true, inertia:Infinity});
+	this.rsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 45, { isSensor:true, inertia:Infinity});
 	this.c1 = Constraint.create({
 		bodyA:this.body,
 		bodyB:this.sensor,
@@ -41,7 +67,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	this.c2 = Constraint.create({
 		bodyA:this.body,
 		bodyB:this.lsensor,
-		pointA:{x: -25, y: 0},
+		pointA:{x: -25, y: -25},
 		length: 0,
 		damping:1,
 		stiffness:1
@@ -49,7 +75,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 	this.c3 = Constraint.create({
 		bodyA:this.body,
 		bodyB:this.rsensor,
-		pointA:{x: 25, y: 0},
+		pointA:{x: 25, y: -25},
 		length: 0,
 		damping:1,
 		stiffness:1
@@ -82,8 +108,8 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		World.remove(world,this.c2);
 		World.remove(world,this.c3);
 		World.remove(world,this.c4);
-		this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 100, {
-			friction: 0.2,
+		this.body = Bodies.rectangle(this.resPos.x*50+25, this.resPos.y*50+25, 50, 100, {
+			friction: 0,
 			restitution: 0,
 			inertia: Infinity,
 			chamfer: 50,
@@ -91,10 +117,10 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 				group: -1
 			}
 		});
-		this.sensor = Bodies.rectangle(x*50+25, y*50+25, 50, 1, {isSensor:true, inertia:Infinity});
-		this.tsensor = Bodies.rectangle(x*50+25, y*50+25, 48, 1, {isSensor:true, inertia:Infinity});
-		this.lsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 95, { isSensor:true, inertia:Infinity});
-		this.rsensor = Bodies.rectangle(x*50+25, y*50+25, 1, 95, { isSensor:true, inertia:Infinity});
+		this.sensor = Bodies.rectangle(this.resPos.x*50+25, this.resPos.y*50+25, 48, 10, {isSensor:true, inertia:Infinity});
+		this.tsensor = Bodies.rectangle(this.resPos.x*50+25, this.resPos.y*50+25, 48, 1, {isSensor:true, inertia:Infinity});
+		this.lsensor = Bodies.rectangle(this.resPos.x*50+25, this.resPos.y*50+25, 1, 45, { isSensor:true, inertia:Infinity});
+		this.rsensor = Bodies.rectangle(this.resPos.x*50+25, this.resPos.y*50+25, 1, 45, { isSensor:true, inertia:Infinity});
 		this.c1 = Constraint.create({
 			bodyA:this.body,
 			bodyB:this.sensor,
@@ -106,7 +132,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		this.c2 = Constraint.create({
 			bodyA:this.body,
 			bodyB:this.lsensor,
-			pointA:{x: -25, y: 0},
+			pointA:{x: -25, y: -25},
 			length: 0,
 			damping:1,
 			stiffness:1
@@ -114,7 +140,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		this.c3 = Constraint.create({
 			bodyA:this.body,
 			bodyB:this.rsensor,
-			pointA:{x: 25, y: 0},
+			pointA:{x: 25, y: -25},
 			length: 0,
 			damping:1,
 			stiffness:1
@@ -176,16 +202,13 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			slide=0;
 		}
 	};
-	this.logic=function(grounds,flags,players,coins,bricks,qblocks,enemies,pwrups){
+	this.logic=function(grounds,flags,players,coins,bricks,qblocks,enemies,pwrups,pipes,checkpoints){
+		if(this.buttons[0].elt.value==="1") this.extJump();
+		if(this.buttons[1].elt.value==="1") this.extMove(1);
+		if(this.buttons[2].elt.value==="1") this.extMove(-1);
 		let collision;
 		jump=true;
-		for (var i = 0; i < grounds.length; i++) {
-			collision = Matter.SAT.collides(this.sensor, grounds[i].body);
-			if (collision.collided) {
-				jump=false;
-			}
-		}
-		for (i = 0; i < pwrups.length; i++) {
+		for (var i = 0; i < pwrups.length; i++) {
 			collision = Matter.SAT.collides(this.body, pwrups[i].body);
 			if (collision.collided&&!pwrups[i].used&&pwrups[i].activated===2) {
 				pwrups[i].used=true;
@@ -201,7 +224,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 					World.remove(world,this.c3);
 					World.remove(world,this.c4);
 					this.body = Bodies.rectangle(x, y, 50, 100, {
-						friction: 0.2,
+						friction: 0,
 						restitution: 0,
 						inertia: Infinity,
 						chamfer: 50,
@@ -209,7 +232,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 							group: -1
 						}
 					});
-					this.sensor = Bodies.rectangle(x, y, 50, 1, {isSensor:true, inertia:Infinity});
+					this.sensor = Bodies.rectangle(x, y, 48, 1, {isSensor:true, inertia:Infinity});
 					this.tsensor = Bodies.rectangle(x, y, 48, 1, {isSensor:true, inertia:Infinity});
 					this.lsensor = Bodies.rectangle(x, y, 1, 95, { isSensor:true, inertia:Infinity});
 					this.rsensor = Bodies.rectangle(x, y, 1, 95, { isSensor:true, inertia:Infinity});
@@ -258,6 +281,27 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 				} else {
 					this.coins+=10;
 				}
+			}
+		}
+		for (i = 0; i < grounds.length; i++) {
+			collision = Matter.SAT.collides(this.sensor, grounds[i].body);
+			if (collision.collided) {
+				jump=false;
+			}
+		}
+		for (i = 0; i < checkpoints.length; i++) {
+			collision = Matter.SAT.collides(this.body, checkpoints[i].body);
+			if (collision.collided){
+				if(i>=this.resPos.lastCheckpointIndex) {
+					this.resPos={x: checkpoints[i].x, y: checkpoints[i].y, lastCheckpointIndex: i};
+				}
+				checkpoints[i].used=1;
+			}
+		}
+		for (i = 0; i < pipes.length; i++) {
+			collision = Matter.SAT.collides(this.sensor, pipes[i].body);
+			if (collision.collided) {
+				jump=false;
 			}
 		}
 		for (i = 0; i < players.length; i++) {
@@ -329,84 +373,90 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 			collision = Matter.SAT.collides(this.body, spikes[i].body);
 			if (collision.collided) {
 				jump=false;
-				if(!immune){
-					if(big){
-						let x=this.body.position.x,y=this.body.position.y;
-						World.remove(world,this.body);
-						World.remove(world,this.sensor);
-						World.remove(world,this.tsensor);
-						World.remove(world,this.lsensor);
-						World.remove(world,this.rsensor);
-						World.remove(world,this.c1);
-						World.remove(world,this.c2);
-						World.remove(world,this.c3);
-						World.remove(world,this.c4);
-						this.body = Bodies.rectangle(x, y, 50, 50, {
-							friction: 0.2,
-							restitution: 0,
-							inertia: Infinity,
-							chamfer: 50,
-							collisionFilter: {
-								group: -1
-							}
-						});
-						this.sensor = Bodies.rectangle(x, y, 50, 1, {isSensor:true, inertia:Infinity});
-						this.tsensor = Bodies.rectangle(x, y, 48, 1, {isSensor:true, inertia:Infinity});
-						this.lsensor = Bodies.rectangle(x, y, 1, 45, { isSensor:true, inertia:Infinity});
-						this.rsensor = Bodies.rectangle(x, y, 1, 45, { isSensor:true, inertia:Infinity});
-						this.c1 = Constraint.create({
-							bodyA:this.body,
-							bodyB:this.sensor,
-							pointA:{x: 0, y: 25},
-							length: 0,
-							damping:1,
-							stiffness:1
-						});
-						this.c2 = Constraint.create({
-							bodyA:this.body,
-							bodyB:this.lsensor,
-							pointA:{x: -25, y: 0},
-							length: 0,
-							damping:1,
-							stiffness:1
-						});
-						this.c3 = Constraint.create({
-							bodyA:this.body,
-							bodyB:this.rsensor,
-							pointA:{x: 25, y: 0},
-							length: 0,
-							damping:1,
-							stiffness:1
-						});
-						this.c4 = Constraint.create({
-							bodyA:this.body,
-							bodyB:this.tsensor,
-							pointA:{x: 0, y: -25},
-							length: 0,
-							damping:1,
-							stiffness:1
-						});
-						World.add(world, this.body);
-						World.add(world, this.sensor);
-						World.add(world, this.tsensor);
-						World.add(world, this.lsensor);
-						World.add(world, this.rsensor);
-						World.add(world, this.c1);
-						World.add(world, this.c2);
-						World.add(world, this.c3);
-						World.add(world, this.c4);
-						big=false;
-						immune=100;
-					} else {
-						if(this.lives>1){
-							this.lives--;
+				if(!spikes[i].instantDeath){
+					if(!immune){
+						if(big){
+							let x=this.body.position.x,y=this.body.position.y;
+							World.remove(world,this.body);
+							World.remove(world,this.sensor);
+							World.remove(world,this.tsensor);
+							World.remove(world,this.lsensor);
+							World.remove(world,this.rsensor);
+							World.remove(world,this.c1);
+							World.remove(world,this.c2);
+							World.remove(world,this.c3);
+							World.remove(world,this.c4);
+							this.body = Bodies.rectangle(x, y, 50, 50, {
+								friction: 0,
+								restitution: 0,
+								inertia: Infinity,
+								chamfer: 50,
+								collisionFilter: {
+									group: -1
+								}
+							});
+							this.sensor = Bodies.rectangle(x, y, 48, 1, {isSensor:true, inertia:Infinity});
+							this.tsensor = Bodies.rectangle(x, y, 48, 1, {isSensor:true, inertia:Infinity});
+							this.lsensor = Bodies.rectangle(x, y, 1, 45, { isSensor:true, inertia:Infinity});
+							this.rsensor = Bodies.rectangle(x, y, 1, 45, { isSensor:true, inertia:Infinity});
+							this.c1 = Constraint.create({
+								bodyA:this.body,
+								bodyB:this.sensor,
+								pointA:{x: 0, y: 25},
+								length: 0,
+								damping:1,
+								stiffness:1
+							});
+							this.c2 = Constraint.create({
+								bodyA:this.body,
+								bodyB:this.lsensor,
+								pointA:{x: -25, y: 0},
+								length: 0,
+								damping:1,
+								stiffness:1
+							});
+							this.c3 = Constraint.create({
+								bodyA:this.body,
+								bodyB:this.rsensor,
+								pointA:{x: 25, y: 0},
+								length: 0,
+								damping:1,
+								stiffness:1
+							});
+							this.c4 = Constraint.create({
+								bodyA:this.body,
+								bodyB:this.tsensor,
+								pointA:{x: 0, y: -25},
+								length: 0,
+								damping:1,
+								stiffness:1
+							});
+							World.add(world, this.body);
+							World.add(world, this.sensor);
+							World.add(world, this.tsensor);
+							World.add(world, this.lsensor);
+							World.add(world, this.rsensor);
+							World.add(world, this.c1);
+							World.add(world, this.c2);
+							World.add(world, this.c3);
+							World.add(world, this.c4);
+							big=false;
 							immune=100;
 						} else {
-							this.init();
-							this.lives=3;
-							this.coins=0;
+							if(this.lives>1){
+								this.lives--;
+								immune=100;
+							} else {
+								this.init();
+								this.lives=3;
+								this.coins=0;
+							}
 						}
 					}
+				} else {
+					this.init();
+					this.lives=3;
+					this.coins=0;
 				}
 				// console.log("dead");
 			}
@@ -434,7 +484,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 							World.remove(world,this.c3);
 							World.remove(world,this.c4);
 							this.body = Bodies.rectangle(x, y, 50, 50, {
-								friction: 0.2,
+								friction: 0,
 								restitution: 0,
 								inertia: Infinity,
 								chamfer: 50,
@@ -442,8 +492,8 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 									group: -1
 								}
 							});
-							this.sensor = Bodies.rectangle(x, y, 50, 1, {isSensor:true, inertia:Infinity});
-							this.tsensor = Bodies.rectangle(x, y, 48, 1, {isSensor:true, inertia:Infinity});
+							this.sensor = Bodies.rectangle(x, y, 40, 1, {isSensor:true, inertia:Infinity});
+							this.tsensor = Bodies.rectangle(x, y, 40, 1, {isSensor:true, inertia:Infinity});
 							this.lsensor = Bodies.rectangle(x, y, 1, 45, { isSensor:true, inertia:Infinity});
 							this.rsensor = Bodies.rectangle(x, y, 1, 45, { isSensor:true, inertia:Infinity});
 							this.c1 = Constraint.create({
@@ -547,19 +597,13 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		}
 		if (keyIsDown(this.keys[0])||extJumping) {
 			this.jump();
+			this.canJump=0;
 		} else {
 			this.canJump=0;
 			slide=0;
-			for (i = 0; i < [].concat(grounds,bricks,qblocks).length; i++) {
-				if([].concat(grounds,bricks,qblocks)[i].type!=="border"){
-					if (Matter.SAT.collides(this.lsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
-						this.canJump=1;
-						slide=2;
-					} else if (Matter.SAT.collides(this.rsensor, [].concat(grounds,bricks,qblocks)[i].body).collided) {
-						this.canJump=1;
-						slide=1;
-					}
-					if(Matter.SAT.collides(this.sensor, [].concat(grounds,bricks,qblocks,players,spikes)[i].body).collided){
+			for (i = 0; i < [].concat(grounds,bricks,qblocks,players,pipes,spikes).length; i++) {
+				if([].concat(grounds,bricks,qblocks,players,pipes,spikes)[i].type!=="border"&&[].concat(grounds,bricks,qblocks,players,pipes,spikes)[i]!==this){
+					if(Matter.SAT.collides(this.sensor, [].concat(grounds,bricks,qblocks,players,pipes,spikes)[i].body).collided){
 						this.canJump=1;
 					}
 				}
@@ -610,10 +654,8 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// [[0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0],
 		// [0,0,0,2,2,2,2,2,2,2,2,3,3,0,0,0,0,0,0,0,0],
 		// [0,0,0,0,1,3,1,3,3,3,3,3,3,3,0,0,0,0,0,0,0],
@@ -701,10 +743,10 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 		if(immune){
 			immune--;
 		}
-		// rect((pos.x-sumx)+width/2,(pos.y-sumy)+height/2,51,48);
+		// rect((pos.x-sumx)+width/2,(pos.y-sumy)+height/2,51,40);
 		// translate(pos.x+width/2,pos.y);
 		// fill(r,g,b);
-		// rect(0,0,51,48);
+		// rect(0,0,51,40);
 		// fill(155, 118, 83);
 		// translate(pos.x+width/2,pos.y);
 		// push();
@@ -739,7 +781,7 @@ function Player(x, y, up=UP_ARROW, right=RIGHT_ARROW, left=LEFT_ARROW) {
 }
 
 function Flag(x, y, next) {
-	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 500, {friction: 1,restitution: 0,isStatic: true});
+	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 500, {friction: 0,restitution: 0,isStatic: true,isSensor:true});
 	this.next=next;
 	this.image=loadImage("media/flag.png");
 	World.add(world, this.body);
@@ -755,13 +797,8 @@ function Flag(x, y, next) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// push();
 		// translate((pos.x-sumx)+width/2, (pos.y-sumy)+height/2);
 		// translate(pos.x+width/2,pos.y);
@@ -775,9 +812,43 @@ function Flag(x, y, next) {
 	};
 }
 
+function Checkpoint(x, y) {
+	this.body = Bodies.rectangle(x*50+55, y*50+25, 80, 100, {friction: 0,restitution: 0,isStatic: true,isSensor:true});
+	this.used=0;
+	this.x=x;
+	this.y=y;
+	this.image=[loadImage("media/checkpointA.png"),loadImage("media/checkpointB.png")];
+	World.add(world, this.body);
+	this.show = function(p) {
+		var pos = this.body.position;
+		var sumx=0;
+		var sumy=0;
+		var ps=0;
+		for(var i=0;i<p.length;i++){
+			if(p[i].body){
+				sumx+=p[i].body.position.x;
+				sumy+=p[i].body.position.y;
+				ps++;
+			}
+		}
+		sumx/=ps;
+		sumy/=ps;
+		// push();
+		// translate((pos.x-sumx)+width/2, (pos.y-sumy)+height/2);
+		// translate(pos.x+width/2,pos.y);
+		// rectMode(CENTER);
+		// noStroke();
+		// fill(155, 118, 83);
+		// fill(255, 136, 0);
+		// rect((pos.x-sumx)+width/2-40,(pos.y-sumy)+height/2-50+offsetY, 80, 100);
+		// pop();
+		image(this.image[this.used],(pos.x-sumx)+width/2-40,(pos.y-sumy)+height/2-50+offsetY,100,100);
+	};
+}
+
 function Ground(x,y,w,h,type="wall") {
 	this.type=type;
-	this.body = Bodies.rectangle(x*50+w*25, y*50+h*25, w*50, h*50, {friction: 1,restitution: 0,isStatic: true});
+	this.body = Bodies.rectangle(x*50+w*25, y*50+h*25, w*50, h*50, {friction: 0,restitution: 0,isStatic: true});
 	this.image = this.type==="ground"? loadImage("media/wall1.png") : loadImage("media/wall2.png");
 	World.add(world, this.body);
 	this.show = function(p) {
@@ -792,13 +863,8 @@ function Ground(x,y,w,h,type="wall") {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// push();
 		// translate(-sumx+width/2, 1000-sumy+height/2);
 		// translate(pos.x+width/2,pos.y);
@@ -815,6 +881,58 @@ function Ground(x,y,w,h,type="wall") {
 				}
 			}
 		}
+	};
+}
+
+function Pipe(x,y,o,l) {
+	this.orientation=o;
+	let w,h;
+	if(o%2===0){
+		w=2,h=l;
+	} else {
+		w=l,h=2;
+	}
+	this.body = Bodies.rectangle(x*50+w*25, y*50+h*25, w*50, h*50, {friction: 0,restitution: 0,isStatic: true});
+	this.image = [loadImage("media/pipe1A.png"), loadImage("media/pipe1B.png"),loadImage("media/pipe2A.png"), loadImage("media/pipe2B.png")];
+	World.add(world, this.body);
+	this.show = function(p) {
+		var pos = this.body.position;
+		var sumx=0;
+		var sumy=0;
+		var ps=0;
+		for(var i=0;i<p.length;i++){
+			if(p[i].body){
+				sumx+=p[i].body.position.x;
+				sumy+=p[i].body.position.y;
+				ps++;
+			}
+		}
+		sumx/=ps;
+		sumy/=ps;
+		push();
+		translate((pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2+offsetY-25);
+		rotate(o*90);
+		image(this.image[0],-25,-l/2*50+25,50,50);
+		// circle(-25,-l/2*50+25,10);
+		image(this.image[1],25,-l/2*50+25,50,50);
+		// circle(25,-l/2*50+25,10);
+		for(var i=1;i<l;i++){
+			image(this.image[2],-25,-l/2*50+i*50+25,50,50);
+			// circle(-25,-l/2*50+i*50+25,10);
+			image(this.image[3],25,-l/2*50+i*50+25,50,50);
+			// circle(25,-l/2*50+i*50+25,10);
+		}
+		// translate(pos.x+width/2,pos.y);
+		// rectMode(CENTER);
+		// noStroke();
+		// fill(155, 118, 83);
+		// fill(0, 0, 0);
+		// rect(0, 0, 1000, 500);
+		pop();
+		// push();
+		// translate((pos.x-sumx)+width/2,(pos.y-sumy)+height/2+offsetY);
+		// circle(0,0,50);
+		// pop();
 	};
 }
 
@@ -835,13 +953,8 @@ function Coin(x,y) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// push();
 		// translate(-sumx+width/2, 1000-sumy+height/2);
 		// translate(pos.x+width/2,pos.y);
@@ -873,13 +986,8 @@ function Brick(x,y) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// push();
 		// translate(-sumx+width/2, 1000-sumy+height/2);
 		// translate(pos.x+width/2,pos.y);
@@ -893,7 +1001,7 @@ function Brick(x,y) {
 			image(this.image[0],(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2+offsetY-25,50,50);
 			counter=0;
 		} else {
-			this.body.isSensor=true;
+			World.remove(world, this.body);
 			if(counter<1){
 				image(this.image[1],(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2+offsetY-25,50,50);
 				counter+=0.1;
@@ -922,13 +1030,8 @@ function QBlock(x,y,disguised) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// push();
 		// translate(-sumx+width/2, 1000-sumy+height/2);
 		// translate(pos.x+width/2,pos.y);
@@ -970,9 +1073,10 @@ function QBlock(x,y,disguised) {
 	};
 }
 
-function Spike(x, y) {
-	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 50, {friction: 1,restitution: 0,isStatic: true});
+function Spike(x, y, instantDeath=false) {
+	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 50, {friction: 0,restitution: 0,isStatic: true});
 	this.image=loadImage("media/spike.png");
+	this.instantDeath=instantDeath;
 	World.add(world, this.body);
 	this.show = function(p) {
 		var pos = this.body.position;
@@ -986,13 +1090,8 @@ function Spike(x, y) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// push();
 		// translate((pos.x-sumx)+width/2, (pos.y-sumy)+height/2);
 		// translate(pos.x+width/2,pos.y);
@@ -1001,15 +1100,14 @@ function Spike(x, y) {
 		// fill(0, 0, 0);
 		// rect(0, 0, 51, 51);
 		// pop();
-		image(this.image,(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY,50,50);
+		if(!this.instantDeath) image(this.image,(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY,50,50);
 	};
 }
 
 function Goomba(x, y, dir=1) {
 	this.dead=false;
-	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 50, {friction: 0,restitution: 0,collisionFilter:{group:-1}, inertia:Infinity});
+	this.body = Bodies.rectangle(x*50+25, y*50+25, 50, 50, {friction: 0,restitution: 0,collisionFilter:{group:-1}, inertia:Infinity, isStatic:false});
 	this.dir=dir;
-	let pdir=dir;
 	this.tsensor = Bodies.rectangle(x*50+25, y*50+25, 50, 10, { isSensor:true, inertia:Infinity});
 	this.lsensora = Bodies.rectangle(x*50+25, y*50+25, 10, 10, { isSensor:true, inertia:Infinity});
 	this.lsensorb = Bodies.rectangle(x*50+25, y*50+25, 1, 10, { isSensor:true, inertia:Infinity});
@@ -1045,7 +1143,7 @@ function Goomba(x, y, dir=1) {
 	this.c2b = Constraint.create({
 		bodyA:this.body,
 		bodyB:this.lsensorb,
-		pointA:{x: -26, y: 25},
+		pointA:{x: -26, y: 30},
 		pointB:{x: 5, y: -2.5},
 		length: 0,
 		damping:1,
@@ -1054,7 +1152,7 @@ function Goomba(x, y, dir=1) {
 	this.c3b = Constraint.create({
 		bodyA:this.body,
 		bodyB:this.rsensorb,
-		pointA:{x: 26, y: 25},
+		pointA:{x: 26, y: 30},
 		pointB:{x: -5, y: -2.5},
 		length: 0,
 		damping:1,
@@ -1086,13 +1184,8 @@ function Goomba(x, y, dir=1) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		// push();
 		// translate((pos.x-sumx)+width/2, (pos.y-sumy)+height/2);
 		// translate(pos.x+width/2,pos.y);
@@ -1146,35 +1239,36 @@ function Goomba(x, y, dir=1) {
 		// rect(0, 0, 1, 10);
 		// pop();
 	};
-	this.logic=function(grounds,bricks,qblocks,spikes){
+	this.logic=function(grounds,bricks,qblocks,spikes,pipes){
 		if(!this.dead){
 			let right=false;
 			let left=false;
-			for (var i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
-				if (Matter.SAT.collides(this.rsensorb, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+			for (var i = 0; i < [].concat(grounds,bricks,qblocks,spikes,pipes).length; i++) {
+				if (Matter.SAT.collides(this.rsensorb, [].concat(grounds,bricks,qblocks,spikes,pipes)[i].body).collided) {
 					right=true;
 					break;
 				}
 			}
-			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
-				if (Matter.SAT.collides(this.rsensora, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes,pipes).length; i++) {
+				if (Matter.SAT.collides(this.rsensora, [].concat(grounds,bricks,qblocks,spikes,pipes)[i].body).collided) {
 					right=false;
 					break;
 				}
 			}
-			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
-				if (Matter.SAT.collides(this.lsensorb, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes,pipes).length; i++) {
+				if (Matter.SAT.collides(this.lsensorb, [].concat(grounds,bricks,qblocks,spikes,pipes)[i].body).collided) {
 					left=true;
 					break;
 				}
 			}
-			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes).length; i++) {
-				if (Matter.SAT.collides(this.lsensora, [].concat(grounds,bricks,qblocks,spikes)[i].body).collided) {
+			for (i = 0; i < [].concat(grounds,bricks,qblocks,spikes,pipes).length; i++) {
+				if (Matter.SAT.collides(this.lsensora, [].concat(grounds,bricks,qblocks,spikes,pipes)[i].body).collided) {
 					left=false;
 					break;
 				}
 			}
-			if(!(left&&right)) this.dir=right-left;
+			this.dir = (right ? !left : left)? right-left : this.dir;
+			// console.log(this.dir);
 			Body.setVelocity(this.body,{
 				x: this.dir,
 				y: this.body.velocity.y
@@ -1204,13 +1298,8 @@ function Mushroom(x, y, activated=0) {
 				ps++;
 			}
 		}
-		if(ps){
-			sumx/=ps;
-			sumy/=ps;
-		} else {
-			sumx=0;
-			sumy=200;
-		}
+		sumx/=ps;
+		sumy/=ps;
 		if(this.activated>0&&!this.used) image(this.image,(pos.x-sumx)+width/2-25,(pos.y-sumy)+height/2-25+offsetY,50,50);
 		// push();
 		// translate((pos.x-sumx)+width/2, (pos.y-sumy)+height/2);
