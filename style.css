@@ -15,7 +15,23 @@ body,html {
 	background-color: #cccccc;
 	border-radius: 50%;
 	text-align: center;
+	vertical-align: center;
 	color: #aaaaaa;
+	position: absolute;
+	top: 80%;
+	user-select: none;
+}
+
+.left {
+	left: 10%;
+}
+
+.right {
+	left: 30%;
+}
+
+.up {
+	left: 80%;
 }
 
 .left:active,.right:active,.up:active {
