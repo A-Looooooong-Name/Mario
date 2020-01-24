@@ -19,6 +19,9 @@ body,html {
 	color: #aaaaaa;
 	position: absolute;
 	top: 80%;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 	user-select: none;
 }
 
@@ -32,10 +35,6 @@ body,html {
 
 .up {
 	left: 80%;
-}
-
-.left:active,.right:active,.up:active {
-	background-color: #bbbbbb;
 }
 
 .left:focus,.right:focus,.up:focus {
